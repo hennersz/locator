@@ -1,0 +1,26 @@
+{
+  "name": "ucl_room_finder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uclapi/UCLRoomFinder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uclapi/UCLRoomFinder/issues"
+  },
+  "homepage": "https://github.com/uclapi/UCLRoomFinder#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "request": "^2.75.0",
+    "xml2json": "^0.10.0"
+  }
+}
