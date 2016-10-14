@@ -8,8 +8,13 @@ var path = require('path');
 var parser = require('xml2json');
 
 var environment = process.env.NODE_ENV || 'development';
-if(environment === "")
-
+if(environment === "development"){
+  var credentials = require('./credentials.json');
+  var dbPassword = credentials.dbPass;
+}else{
+  var dbPassword = process.env.DBPASS
+}
+var dbURI = 'mongodb://henry:'+dbPassword+'@ds061374.mlab.com:61374/locator'
 var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 app.use(bodyParser.urlencoded({ extended:false }));

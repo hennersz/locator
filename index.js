@@ -14,6 +14,7 @@ if(environment === "development"){
 }else{
   var dbPassword = process.env.DBPASS
 }
+var dbURI = 'mongodb://henry:'+dbPassword+'@ds061374.mlab.com:61374/locator';
 
 var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
