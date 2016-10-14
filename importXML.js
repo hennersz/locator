@@ -8,24 +8,33 @@ var room = file.slice(0, -4);
 var filePath = path.join(__dirname, 'xml', file);
 var locationsPath = path.join(__dirname, 'locations.json');
 
-var locations = require('./locations.json');
+var credentials = require('./credentials.json');
+var dbPassword = credentials.dbPass;
 
-fs.readFile(filePath, function(err,data){
+const dbURI = 'mongodb://henry:'+dbPassword+'@ds061374.mlab.com:61374/locator';
+const db = require('monk')(dbURI);
+const locations = db.get('locations');
+
+function addEntry(data, end){
+  locations.insert(data,{},(err, doc) => {
+    if(end){
+      db.close();
+    }
+  });
+}
+
+fs.readFile(filePath, (err,data) => {
   if(!err){
+    var collection = db.collection('locations');
     var xml = data;
     var json = JSON.parse(parser.toJson(xml));
-    console.log(typeof(json));
-    console.log(json.wifiScanResults);
+    var i = 1;
+    var len = json.wifiScanResults.scanResult.length;
     for(var ap of json.wifiScanResults.scanResult){
-      locations.push({
-        macAddress: ap.BSSID,
-        location: room
-      });
-    }   
-    fs.writeFile(locationsPath, JSON.stringify(locations),function(err){
-      if(err) console.error(err);
-    });
+      addEntry({macAddress: ap.BSSID, location: room}, i === len);
+      i++;
+    }
   } else {
     console.error(err);
   }
-})
+});

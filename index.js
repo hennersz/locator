@@ -1,11 +1,6 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var request = require('request');
-var locations = require('./locations.json');
-var fs = require('fs');
-var path = require('path');
-var parser = require('xml2json');
 
 var environment = process.env.NODE_ENV || 'development';
 if(environment === "development"){
@@ -14,7 +9,11 @@ if(environment === "development"){
 }else{
   var dbPassword = process.env.DBPASS
 }
-var dbURI = 'mongodb://henry:'+dbPassword+'@ds061374.mlab.com:61374/locator';
+const dbURI = 'mongodb://henry:'+dbPassword+'@ds061374.mlab.com:61374/locator';
+const db = require('monk')(dbURI);
+const locations = db.get('locations');
+
+locations.index({macAddress: 1}, {unique: true});
 
 var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
@@ -31,16 +30,14 @@ app.get('/', function(req,res){
 
 app.post('/', function (req, res) {
   console.log(req.body.macAddress);
-  var locSet = false;
-  for(var loc of locations){
-    if(loc.macAddress === req.body.macAddress){
-      location = loc.location;
-      locSet = true;
+  locations.findOne({macAddress: req.body.macAddress}).then((doc) => {
+    console.log(doc);
+    if(doc === null){
+      location = 'unknown';
+    } else {
+      location = doc.location;
     }
-  }
-  if(!locSet){
-    location = 'unknown';
-  }
+  })
   lastUpdate = new Date().now()/1000;
   res.end();
 });
