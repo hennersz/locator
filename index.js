@@ -43,12 +43,15 @@ app.get('/notification', function(req, res) {
 app.post('/', function (req, res) {
   console.log(typeof(req.body.macAddress));
   locations.findOne({macAddress: req.body.macAddress}).then((doc) => {
+    var prevLoc = location;
     if(doc === null){
       location = 'unknown';
     } else {
       location = doc.location;
     }
-    io.emit('locationUpdated', {location: location, user: 'Henry'});
+    if(prevLoc !== location){
+      io.emit('locationUpdated', {location: location, user: 'Henry'});
+    }
     console.log('here');
   });
   lastUpdate = new Date();
