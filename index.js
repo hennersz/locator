@@ -20,15 +20,16 @@ locations.index({macAddress: 1}, {unique: true});
 
 var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 app.use(bodyParser.urlencoded({ extended:false }));
+app.use(express.static('public'));
 
 var location = 'offline';
 var lastUpdate;
 
 app.get('/', function(req,res){
-  res.json({
-    location: location
-  });
+  res.render('location', {location: location});
 });
 
 app.get('/push.min.js', function(req, res){

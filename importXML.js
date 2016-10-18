@@ -3,9 +3,11 @@ var fs = require('fs');
 var parser = require('xml2json');
 
 var file = process.argv[2];
+var opt = process.argv[3];
 
-var filePath = path.join(__dirname, 'xml', file);
-var locationsPath = path.join(__dirname, 'locations.json');
+if(opt){
+  var filePath = path.join(__dirname, 'xml', file+'.xml');
+}
 
 var credentials = require('./credentials.json');
 var dbPassword = credentials.dbPass;
@@ -21,17 +23,15 @@ function addEntry(data, end){
     }
   });
 }
-if(file){
-  var room = file.slice(0, -4);
+if(opt){
   fs.readFile(filePath, (err,data) => {
     if(!err){
-      var collection = db.collection('locations');
       var xml = data;
       var json = JSON.parse(parser.toJson(xml));
       var i = 1;
       var len = json.wifiScanResults.scanResult.length;
       for(var ap of json.wifiScanResults.scanResult){
-        addEntry({macAddress: ap.BSSID, location: room}, i === len);
+        addEntry({macAddress: ap.BSSID, location: file}, i === len);
         i++;
       }
     } else {
@@ -39,5 +39,18 @@ if(file){
     }
   });
 } else {
-  
+	var exec = require('child_process').exec;
+	exec("/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -s -x", function (error, stdout, stderr) {
+    var xml = stdout;
+    var json = JSON.parse(parser.toJson(xml));
+    var i = 1;
+    var len = json.plist.array.dict.length;
+    for(var ap of json.plist.array.dict){
+      addEntry({macAddress: ap.string[0], location: file}, i === len);
+      i++;
+    }
+		if (error !== null) {
+			console.log('exec error: ' + error);
+    }
+	}); 
 }
