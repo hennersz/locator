@@ -40,21 +40,18 @@ app.get('/notification', function(req, res) {
 });
 
 app.post('/', function (req, res) {
-  console.log(req.body.macAddress);
   locations.findOne({macAddress: req.body.macAddress}).then((doc) => {
-    console.log(doc);
     if(doc === null){
       location = 'unknown';
     } else {
       location = doc.location;
     }
     io.emit('locationUpdated', {location: location, user: 'Henry'});
-  })
-  lastUpdate = new Date().now();
+    console.log('here');
+  });
+  lastUpdate = new Date();
   setTimeout(function(){
-    var timeNow = new Date().now();
-    console.log(timeNow);
-    console.log(lastUpdate);
+    var timeNow = new Date();
     if(timeNow - lastUpdate > 900000){
       location = 'offline';
     }
