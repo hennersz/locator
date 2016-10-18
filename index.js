@@ -41,6 +41,7 @@ app.get('/notification', function(req, res) {
 });
 
 app.post('/', function (req, res) {
+  console.log(typeof(req.body.macAddress));
   locations.findOne({macAddress: req.body.macAddress}).then((doc) => {
     if(doc === null){
       location = 'unknown';
