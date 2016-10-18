@@ -1,6 +1,9 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var path = require('path');
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 var environment = process.env.NODE_ENV || 'development';
 if(environment === "development"){
@@ -28,6 +31,14 @@ app.get('/', function(req,res){
   });
 });
 
+app.get('/push.min.js', function(req, res){
+  res.sendFile(path.join(__dirname+'/push.min.js'));
+})
+
+app.get('/notification', function(req, res) {
+  res.sendFile(path.join(__dirname+'/notifications.html'));
+});
+
 app.post('/', function (req, res) {
   console.log(req.body.macAddress);
   locations.findOne({macAddress: req.body.macAddress}).then((doc) => {
@@ -37,9 +48,22 @@ app.post('/', function (req, res) {
     } else {
       location = doc.location;
     }
+    io.emit('locationUpdated', {location: location, user: 'Henry'});
   })
-  lastUpdate = new Date().now()/1000;
+  lastUpdate = new Date().now();
+  setTimeout(function(){
+    var timeNow = new Date().now();
+    console.log(timeNow);
+    console.log(lastUpdate);
+    if(timeNow - lastUpdate > 900000){
+      location = 'offline';
+    }
+  }, 900000);
   res.end();
+});
+
+io.on('connection', function(socket){
+    console.log('a user connected');
 });
 
 app.use(function(req, res, next) {
@@ -57,7 +81,7 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.listen(port, function () {
+server.listen(port, function () {
 	console.log('Listening on port ' + port);
 });
 

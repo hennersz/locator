@@ -3,7 +3,6 @@ var fs = require('fs');
 var parser = require('xml2json');
 
 var file = process.argv[2];
-var room = file.slice(0, -4);
 
 var filePath = path.join(__dirname, 'xml', file);
 var locationsPath = path.join(__dirname, 'locations.json');
@@ -22,19 +21,23 @@ function addEntry(data, end){
     }
   });
 }
-
-fs.readFile(filePath, (err,data) => {
-  if(!err){
-    var collection = db.collection('locations');
-    var xml = data;
-    var json = JSON.parse(parser.toJson(xml));
-    var i = 1;
-    var len = json.wifiScanResults.scanResult.length;
-    for(var ap of json.wifiScanResults.scanResult){
-      addEntry({macAddress: ap.BSSID, location: room}, i === len);
-      i++;
+if(file){
+  var room = file.slice(0, -4);
+  fs.readFile(filePath, (err,data) => {
+    if(!err){
+      var collection = db.collection('locations');
+      var xml = data;
+      var json = JSON.parse(parser.toJson(xml));
+      var i = 1;
+      var len = json.wifiScanResults.scanResult.length;
+      for(var ap of json.wifiScanResults.scanResult){
+        addEntry({macAddress: ap.BSSID, location: room}, i === len);
+        i++;
+      }
+    } else {
+      console.error(err);
     }
-  } else {
-    console.error(err);
-  }
-});
+  });
+} else {
+  
+}

@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 import subprocess
 import requests
 
@@ -17,6 +19,5 @@ for pair in pairs:
         pair = '0'+pair
     newList.append(pair)
 data = ':'.join(newList)
-print(data)
 
 r = requests.post('http://localhost:8080/', data={'macAddress': data})
